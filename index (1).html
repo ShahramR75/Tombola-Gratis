@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tombola Interattiva con Voce Inglese</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .dashboard {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        #estratto {
+            font-size: 5rem;
+            font-weight: bold;
+            color: #e74c3c;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            width: 100%;
+            background: #fdf2f2;
+            border-radius: 10px;
+            border: 2px dashed #e74c3c;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            background-color: #2ecc71;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #27ae60;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        #tabellone {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .cella {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px 0;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #495057;
+            transition: all 0.3s ease;
+        }
+
+        .cella.estratto {
+            background-color: #e74c3c;
+            border-color: #c0392b;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+        }
+
+        @media (max-width: 600px) {
+            #tabellone {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 5px;
+                padding: 10px;
+            }
+            .cella {
+                padding: 10px 0;
+                font-size: 1rem;
+            }
+            #estratto {
+                font-size: 4rem;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Tombola Interattiva</h1>
+
+    <div class="dashboard">
+        <div id="estratto">-</div>
+        <button id="btnEstrai" onclick="estraiNumero()">Estrai Numero</button>
+    </div>
+
+    <div id="tabellone"></div>
+
+    <script>
+        let numeriDisponibili = [];
+        for (let i = 1; i <= 90; i++) {
+            numeriDisponibili.push(i);
+        }
+
+        const tabellone = document.getElementById('tabellone');
+        const displayEstratto = document.getElementById('estratto');
+        const btnEstrai = document.getElementById('btnEstrai');
+
+        // Generiamo il tabellone
+        for (let i = 1; i <= 90; i++) {
+            const cella = document.createElement('div');
+            cella.classList.add('cella');
+            cella.innerText = i;
+            cella.id = `cella-${i}`;
+            tabellone.appendChild(cella);
+        }
+
+        // Funzione per far parlare il browser in inglese
+        function pronunciaNumero(numero) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); 
+
+                const messaggio = new SpeechSynthesisUtterance(numero.toString());
+                messaggio.lang = 'en-US'; 
+                messaggio.rate = 0.9;     
+                messaggio.pitch = 1.0;    
+
+                window.speechSynthesis.speak(messaggio);
+            }
+        }
+
+        // Funzione principale di estrazione
+        function estraiNumero() {
+            if (numeriDisponibili.length === 0) {
+                alert("Tutti i numeri sono stati estratti!");
+                return;
+            }
+
+            const indiceCasuale = Math.floor(Math.random() * numeriDisponibili.length);
+            const numeroEstratto = numeriDisponibili.splice(indiceCasuale, 1)[0];
+
+            displayEstratto.innerText = numeroEstratto;
+
+            const cellaTarget = document.getElementById(`cella-${numeroEstratto}`);
+            if (cellaTarget) {
+                cellaTarget.classList.add('estratto');
+            }
+
+            pronunciaNumero(numeroEstratto);
+
+            if (numeriDisponibili.length === 0) {
+                btnEstrai.innerText = "Gioco Terminato";
+                btnEstrai.disabled = true;
+            }
+        }
+    </script>
+</body>
+</html>
